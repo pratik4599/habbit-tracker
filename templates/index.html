@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .calendar th, .calendar td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .calendar th {
+            background-color: #f4f4f4;
+            font-weight: normal;
+        }
+        .habit-row td {
+            height: 40px;
+        }
+        .habit-cell {
+            cursor: pointer;
+        }
+        .habit-cell.completed {
+            background-color: #4CAF50;
+        }
+        .habit-name {
+            color: blue;
+        }
+        .selected-date {
+            background-color: #555;
+            color: white;
+        }
+        .weekend {
+            color: blue;
+        }
+        .friday {
+            color: red;
+        }
+        #new-habit-btn {
+            margin: 20px 0;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .month-nav {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 5px 15px;
+            cursor: pointer;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div id="calendar-container">
+        <table class="calendar">
+            <thead>
+                <tr>
+                    <th colspan="29">
+                        <button class="month-nav" onclick="previousMonth()">&lt;</button>
+                        <span id="current-month">February 2025</span>
+                        <button class="month-nav" onclick="nextMonth()">&gt;</button>
+                    </th>
+                </tr>
+                <tr id="weekday-header">
+                    <th>Habits</th>
+                    <th>S</th>
+                    <th>M</th>
+                    <th>T</th>
+                    <th>W</th>
+                    <th>T</th>
+                    <th class="friday">F</th>
+                    <th class="weekend">S</th>
+                    <th>S</th>
+                    <th>M</th>
+                    <th>T</th>
+                    <th>W</th>
+                    <th>T</th>
+                    <th class="friday">F</th>
+                    <th class="weekend">S</th>
+                    <th>S</th>
+                    <th>M</th>
+                    <th>T</th>
+                    <th>W</th>
+                    <th>T</th>
+                    <th class="friday">F</th>
+                    <th class="weekend">S</th>
+                    <th>S</th>
+                    <th>M</th>
+                    <th>T</th>
+                    <th>W</th>
+                    <th>T</th>
+                    <th class="friday">F</th>
+                </tr>
+                <tr id="date-header">
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="habits-body">
+                <!-- Habits will be added here dynamically -->
+            </tbody>
+        </table>
+    </div>
+    <button id="new-habit-btn" onclick="addNewHabit()">+ New Habit</button>
+
+    <script>
+        let currentDate = new Date(2025, 1); // February 2025
+
+        let habits = JSON.parse(localStorage.getItem('habits')) || [
+            { name: 'meditate' },
+            { name: 'exercise' },
+            { name: 'affirmation' }
+        ];
+
+        function updateMonthDisplay() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            document.getElementById('current-month').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+        }
+
+        function getDaysInMonth(date) {
+            return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+        }
+
+        function renderCalendar() {
+            const tbody = document.getElementById('habits-body');
+            const dateHeader = document.getElementById('date-header');
+            tbody.innerHTML = '';
+            const daysInMonth = getDaysInMonth(currentDate);
+            
+            // Update column span for month header
+            document.querySelector('thead tr:first-child th').setAttribute('colspan', daysInMonth + 1);
+            
+            // Update date numbers in header
+            dateHeader.innerHTML = '<th></th>';
+            for (let i = 1; i <= daysInMonth; i++) {
+                const th = document.createElement('th');
+                th.textContent = i;
+                dateHeader.appendChild(th);
+            }
+            
+            // Update weekday header to match number of days
+            const weekdayHeader = document.getElementById('weekday-header');
+            weekdayHeader.innerHTML = '<th>Habits</th>';
+            const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            for (let i = 0; i < daysInMonth; i++) {
+                const th = document.createElement('th');
+                th.textContent = weekdays[i % 7];
+                if (i % 7 === 5) th.className = 'friday';
+                if (i % 7 === 6) th.className = 'weekend';
+                weekdayHeader.appendChild(th);
+            }
+
+            habits.forEach((habit, index) => {
+                const row = document.createElement('tr');
+                row.className = 'habit-row';
+                
+                // Habit name cell
+                const nameCell = document.createElement('td');
+                nameCell.textContent = habit.name;
+                nameCell.className = 'habit-name';
+                row.appendChild(nameCell);
+                
+                // Date cells
+                for (let i = 0; i < daysInMonth; i++) {
+                    const cell = document.createElement('td');
+                    cell.className = 'habit-cell';
+                    cell.setAttribute('data-habit', index);
+                    cell.setAttribute('data-date', i + 1);
+                    
+                    const key = `${habit.name}-${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${i + 1}`;
+                    if (localStorage.getItem(key) === 'true') {
+                        cell.classList.add('completed');
+                    }
+                    
+                    cell.onclick = function() {
+                        this.classList.toggle('completed');
+                        localStorage.setItem(key, this.classList.contains('completed'));
+                    };
+                    row.appendChild(cell);
+                }
+                
+                tbody.appendChild(row);
+            });
+            
+            updateMonthDisplay();
+        }
+
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function addNewHabit() {
+            const name = prompt('Enter new habit name:');
+            if (name) {
+                habits.push({ name });
+                saveHabits();
+                renderCalendar();
+            }
+        }
+
+        function saveHabits() {
+            localStorage.setItem('habits', JSON.stringify(habits));
+        }
+
+        // Initial render
+        renderCalendar();
+    </script>
+</body>
+</html>
