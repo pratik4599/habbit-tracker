@@ -8,10 +8,13 @@
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            background-color: #f0f2f5;
         }
         .calendar {
             width: 100%;
             border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
         }
         .calendar th, .calendar td {
             border: 1px solid #ddd;
@@ -73,36 +76,6 @@
                         <button class="month-nav" onclick="nextMonth()">&gt;</button>
                     </th>
                 </tr>
-                <tr id="weekday-header">
-                    <th>Habits</th>
-                    <th>S</th>
-                    <th>M</th>
-                    <th>T</th>
-                    <th>W</th>
-                    <th>T</th>
-                    <th class="friday">F</th>
-                    <th class="weekend">S</th>
-                    <th>S</th>
-                    <th>M</th>
-                    <th>T</th>
-                    <th>W</th>
-                    <th>T</th>
-                    <th class="friday">F</th>
-                    <th class="weekend">S</th>
-                    <th>S</th>
-                    <th>M</th>
-                    <th>T</th>
-                    <th>W</th>
-                    <th>T</th>
-                    <th class="friday">F</th>
-                    <th class="weekend">S</th>
-                    <th>S</th>
-                    <th>M</th>
-                    <th>T</th>
-                    <th>W</th>
-                    <th>T</th>
-                    <th class="friday">F</th>
-                </tr>
                 <tr id="date-header">
                     <th></th>
                 </tr>
@@ -151,18 +124,6 @@
                 dateHeader.appendChild(th);
             }
             
-            // Update weekday header to match number of days
-            const weekdayHeader = document.getElementById('weekday-header');
-            weekdayHeader.innerHTML = '<th>Habits</th>';
-            const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-            for (let i = 0; i < daysInMonth; i++) {
-                const th = document.createElement('th');
-                th.textContent = weekdays[i % 7];
-                if (i % 7 === 5) th.className = 'friday';
-                if (i % 7 === 6) th.className = 'weekend';
-                weekdayHeader.appendChild(th);
-            }
-
             habits.forEach((habit, index) => {
                 const row = document.createElement('tr');
                 row.className = 'habit-row';
